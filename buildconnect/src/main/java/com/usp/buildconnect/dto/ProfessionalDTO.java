@@ -14,5 +14,7 @@ public class ProfessionalDTO {
 	private List<String> services;
 	private String MEI;
 	private double mean_avaliation;
-	private String region;
+	private String city;
+	private String photo;
+	private String background_photo;
 }

@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.usp.buildconnect.dto.AuthRequest;
 import com.usp.buildconnect.dto.AuthResponse;
 import com.usp.buildconnect.security.JwtUtil;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/Auth")
 public class AuthController {
 	@Autowired
 	private AuthenticationManager authManager; //injeta automaticamente o autenticador do ApplicationContext
@@ -25,8 +25,8 @@ public class AuthController {
 	private JwtUtil jwtUtil;
 	
 	
-	@PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+	@PostMapping("/Login")
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthRequest request) {
         try {
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())

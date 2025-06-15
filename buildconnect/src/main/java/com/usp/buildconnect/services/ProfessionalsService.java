@@ -10,10 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.usp.buildconnect.dto.ProfessionalDTO;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Query;
 
 @Service
-public class SearchService {
+public class ProfessionalsService {
 	
 	@Autowired
 	private EntityManager entityManager;
@@ -31,16 +32,18 @@ public class SearchService {
 		
 		StringBuilder sql = new StringBuilder("""
 				SELECT
-				u.id AS user_id,
+				u.id_usuario AS user_id,
 				u.nome AS user_name,
 				u.cpf AS user_cpf,
 				s.tipo AS service_name,
 				p.MEI AS professional_mei,
 				p.nota_media AS professional_mean_avaliaton,
-				u.regiao AS user_region
-			FROM Usuario u JOIN Profissional p ON u.id = p.id
-			LEFT JOIN Prestador_Servicos ps ON ps.professional_id = p.id
-			LEFT JOIN Servico s ON s.id = ps.service_id
+				u.cidade AS user_city,
+				u.foto AS user_perfil,
+				p.capa_perfil AS background_perfil
+			FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+			LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+			LEFT JOIN Servico s ON s.id = ps.fk_servico_id
 			WHERE 1=1 
 			""");
 		
@@ -48,8 +51,8 @@ public class SearchService {
 			String token = "token" + i;
 			sql.append(" AND ("); 
             sql.append(" LOWER(u.nome) LIKE LOWER(CONCAT('%', :").append(token).append(", '%')) ");
-            sql.append(" OR LOWER(u.regiao) LIKE LOWER(CONCAT('%', :").append(token).append(", '%')) ");
-            sql.append(" OR LOWER(s.nome_servico) LIKE LOWER(CONCAT('%', :").append(token).append(", '%')) ");
+            sql.append(" OR LOWER(u.cidade) LIKE LOWER(CONCAT('%', :").append(token).append(", '%')) ");
+            sql.append(" OR LOWER(s.tipo) LIKE LOWER(CONCAT('%', :").append(token).append(", '%')) ");
             sql.append(") ");
 		}
 		
@@ -64,24 +67,26 @@ public class SearchService {
 	
 	
 	@SuppressWarnings("unchecked")
-	public List<ProfessionalDTO> listProfessionalByRegion(String region){
-		if(region == null || region.trim().isEmpty()) return new ArrayList<>();
+	public List<ProfessionalDTO> listProfessionalByCity(String city){
+		if(city == null || city.trim().isEmpty()) return new ArrayList<>();
 		StringBuilder sql = new StringBuilder("""
 				SELECT
-					u.id AS user_id,
+					u.id_usuario AS user_id,
 					u.nome AS user_name,
 					u.cpf AS user_cpf,
 					s.tipo AS service_name,
 					p.MEI AS professional_mei,
 					p.nota_media AS professional_mean_avaliaton,
-					u.regiao AS user_region
-				FROM Usuario u JOIN Profissional p ON u.id = p.id
-				LEFT JOIN Prestador_Servicos ps ON ps.professional_id = p.id
-				LEFT JOIN Servico s ON s.id = ps.service_id
-				WHERE LOWER(u.regiao) LIKE LOWER(CONCAT('%', :regionParam, '%')) 
+					u.cidade AS user_city,
+					u.foto AS user_perfil,
+					p.capa_perfil AS background_perfil
+				FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
+				WHERE LOWER(u.cidade) LIKE LOWER(CONCAT('%', :cityParam, '%')) 
 				""");
 		Query nativeQuery = entityManager.createNativeQuery(sql.toString());
-		nativeQuery.setParameter("regionParam", region);
+		nativeQuery.setParameter("regionParam", city);
 		return mapRawResultsToDTOs(nativeQuery.getResultList());
 	}
 	
@@ -91,20 +96,22 @@ public class SearchService {
 		if(service == null || service.trim().isEmpty()) return new ArrayList<>();
 		StringBuilder sql = new StringBuilder("""
 				SELECT
-					u.id AS user_id,
+					u.id_usuario AS user_id,
 					u.nome AS user_name,
 					u.cpf AS user_cpf,
 					s.tipo AS service_name,
 					p.MEI AS professional_mei,
 					p.nota_media AS professional_mean_avaliaton,
-					u.regiao AS user_region
-				FROM Usuario u JOIN Profissional p ON u.id = p.id
-				LEFT JOIN Prestador_Servicos ps ON ps.professional_id = p.id
-				LEFT JOIN Servico s ON s.id = ps.service_id
+					u.cidade AS user_city,
+					u.foto AS user_perfil,
+					p.capa_perfil AS background_perfil
+				FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
 				WHERE EXISTS(
 				 	SELECT 1 FROM Prestador_Serviços p_filter
-				 	JOIN Servico s_filter ON s_filter.id = p_filter.service_id
-				 	WHERE p.id = p_filter.professional_id AND
+				 	JOIN Servico s_filter ON s_filter.id = p_filter.fk_servico_id
+				 	WHERE p.fk_usuario_id = p_filter.fk_profissional_id AND
 				 	LOWER(s.tipo) LIKE LOWER(CONCAT('%', :serviceParam, '%'))
 				 )
 				"""
@@ -119,16 +126,18 @@ public class SearchService {
 		if(name == null || name.trim().isEmpty()) return new ArrayList<>();
 		StringBuilder sql = new StringBuilder("""
 				SELECT
-					u.id AS user_id,
+					u.id_usuario AS user_id,
 					u.nome AS user_name,
 					u.cpf AS user_cpf,
 					s.tipo AS service_name,
 					p.MEI AS professional_mei,
 					p.nota_media AS professional_mean_avaliaton,
-					u.regiao AS user_region
-				FROM Usuario u JOIN Profissional p ON u.id = p.id
-				LEFT JOIN Prestador_Servicos ps ON ps.professional_id = p.id
-				LEFT JOIN Servico s ON s.id = ps.service_id
+					u.cidade AS user_city,
+					u.foto AS user_perfil,
+					p.capa_perfil AS background_perfil
+				FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
 				WHERE LOWER(u.nome) LIKE LOWER(CONCAT('%', :nameParam, '%'))
 				"""
 				);
@@ -140,24 +149,49 @@ public class SearchService {
 	public ProfessionalDTO getProfessionalByID(Long Id){
 		StringBuilder sql = new StringBuilder("""
 				SELECT
-					u.id AS user_id,
+					u.id_usuario AS user_id,
 					u.nome AS user_name,
 					u.cpf AS user_cpf,
 					s.tipo AS service_name,
 					p.MEI AS professional_mei,
 					p.nota_media AS professional_mean_avaliaton,
-					u.regiao AS user_region
-				FROM Usuario u JOIN Profissional p ON u.id = p.id
-				LEFT JOIN Prestador_Servicos ps ON ps.professional_id = p.id
-				LEFT JOIN Servico s ON s.id = ps.service_id
-				WHERE p.id = :idParam
+					u.cidade AS user_city,
+					u.foto AS user_perfil,
+					p.capa_perfil AS background_perfil
+				FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
+				WHERE p.fk_usuario_id = :idParam
 				"""
 				);
 		Query nativeQuery = entityManager.createNativeQuery(sql.toString());
 		nativeQuery.setParameter("idParam", Id);
 		@SuppressWarnings("unchecked")
 		List<ProfessionalDTO> results  = mapRawResultsToDTOs(nativeQuery.getResultList());
+		if(results.isEmpty()) throw new EntityNotFoundException("Professional Not Found");
 		return results.getFirst();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ProfessionalDTO> getProfessionals(){
+		StringBuilder sql = new StringBuilder("""
+				SELECT
+					u.id_usuario AS user_id,
+					u.nome AS user_name,
+					u.cpf AS user_cpf,
+					s.tipo AS service_name,
+					p.MEI AS professional_mei,
+					p.nota_media AS professional_mean_avaliaton,
+					u.cidade AS user_city,
+					u.foto AS user_perfil,
+					p.capa_perfil AS background_perfil
+				FROM Usuario u JOIN Profissional p ON u.id_usuario = p.fk_usuario_id
+				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
+				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
+				"""
+				);
+		Query nativeQuery = entityManager.createNativeQuery(sql.toString());
+		return mapRawResultsToDTOs(nativeQuery.getResultList());
 	}
 	
 	private List<ProfessionalDTO> mapRawResultsToDTOs(List<Object[]> rawResults) {
@@ -170,14 +204,17 @@ public class SearchService {
             String service = (String) row[3];
             String mei = (String) row[4]; 
             double meanAvaliation = (Double) row[5]; 
-            String region = (String) row[6];
+            String city = (String) row[6];
+            String photo = (String) row[7];
+            String background_photo = (String) row[8];
 
             ProfessionalDTO dto = professionalMap.get(id);
 
             if (dto == null) {
                 List<String> servicesList = new ArrayList<>();
                 if (service != null) servicesList.add(service);
-                dto = new ProfessionalDTO(id, name, cpf, servicesList, mei, meanAvaliation, region);
+                dto = new ProfessionalDTO(id, name, cpf, servicesList, mei, meanAvaliation, city, photo,
+                		background_photo);
                 professionalMap.put(id, dto);
             } else {
                 if (service != null && !dto.getServices().contains(service)) {

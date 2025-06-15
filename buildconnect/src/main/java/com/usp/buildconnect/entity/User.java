@@ -32,7 +32,6 @@ public class User {
 	private String region;
 	@Column(name = "CPF")
 	private String cpf;
-    private String role;
     
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval= true)
     @PrimaryKeyJoinColumn
@@ -41,4 +40,8 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval= true)
     @PrimaryKeyJoinColumn
     private Client client;
+    
+    public String getRole() {
+    	return client == null ? "PROFESSIONAL" : "CLIENT";
+    }
 }

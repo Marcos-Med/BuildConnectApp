@@ -1,5 +1,6 @@
 package com.usp.buildconnect.config;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,21 +17,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import com.usp.buildconnect.security.CustomUserDetailsService;
+
+import com.usp.buildconnect.security.CustomAuthenticationProvider;
+
 
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 	@Autowired
-	private CustomUserDetailsService userDetailsService; //estratégia para busca de Usuário no SGBD
+	private CustomAuthenticationProvider customAuthenticationProvider; //estratégia para busca de Usuário no SGBD
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{ //exceto a rota 'auth/login', qualquer outra precisa de login
@@ -84,23 +84,17 @@ public class SecurityConfig {
 	 @Bean
 	 public AuthenticationManager authManager(HttpSecurity http) throws Exception {
 		 AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-		 authBuilder.userDetailsService((UserDetailsService)userDetailsService) //Realiza a autenticação do Usuário
-	                .passwordEncoder(passwordEncoder());
+		 authBuilder.authenticationProvider(customAuthenticationProvider);
 	     return  authBuilder.build();
 	  }
 
-	 @Bean
-	 public PasswordEncoder passwordEncoder() { //Realiza Criptografia na Senha
-	        return new BCryptPasswordEncoder();
-	 }
-	 
 	 @Bean
 	    public JwtAuthenticationConverter jwtAuthenticationConverter() {
 	        return new JwtAuthenticationConverter() {{
 	            setJwtGrantedAuthoritiesConverter(jwt -> {
 	                List<GrantedAuthority> authorities = new ArrayList<>();
 	                String role = jwt.getClaimAsString("role");
-
+	                System.out.println(role);
 	                if (role != null) {
 	                    authorities.add(new SimpleGrantedAuthority(role));
 	                }
@@ -113,6 +107,7 @@ public class SecurityConfig {
 	 @Bean
 	 public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secretKey) {
 	     // Exemplo com chave simétrica (usada com jjwt, por exemplo)
-	     return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(secretKey.getBytes(), "HmacSHA256")).build();
+		 System.out.println(secretKey);
+	     return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256")).build();
 	  }
 }

@@ -2,8 +2,8 @@ package com.usp.buildconnect.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,18 +18,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Clientes")
+@Table(name = "Cliente")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Client {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="fk_usuario_id")
 	private Long id;
 	
-	@OneToOne(mappedBy = "client",cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@MapsId
-	@JoinColumn(name="id")
+	@JoinColumn(name="fk_usuario_id")
 	private User user;
 	
 	@OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)

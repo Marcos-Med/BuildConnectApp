@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Professional {
 	@Id
+	@Column(name="fk_usuario_id")
 	private Long id;
 	@Column(name = "MEI")
 	private String mei;
@@ -32,9 +33,9 @@ public class Professional {
 	private String background_photo;
 	
 	
-	@OneToOne(mappedBy = "professional",cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@MapsId
-	@JoinColumn(name = "id")
+	@JoinColumn(name = "fk_usuario_id")
 	private User user;
 	
 	@OneToMany(mappedBy="professional", cascade = CascadeType.ALL, orphanRemoval = true)

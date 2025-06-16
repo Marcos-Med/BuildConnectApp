@@ -14,6 +14,7 @@ public class JwtUtil {
     private String secret;
 
     public String generateToken(String username) { //gera token JWT
+    	System.out.println(secret);
         return Jwts.builder()
                 .setSubject(username) //pertence ao Usuário "username"
                 .setIssuedAt(new Date(System.currentTimeMillis()))

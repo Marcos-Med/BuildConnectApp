@@ -1,6 +1,6 @@
 package com.usp.buildconnect.entity;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,15 +21,16 @@ import lombok.NoArgsConstructor;
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id_usuario")
 	private Long id;
-	@Column(name = "email")
+	@Column(name = "e_mail")
 	private String username;
 	@Column(name = "senha")
     private String password;
 	@Column(name= "nome")
 	private String name;
-	@Column(name = "regiao")
-	private String region;
+	@Column(name = "cidade")
+	private String city;
 	@Column(name = "CPF")
 	private String cpf;
     

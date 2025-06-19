@@ -1,11 +1,10 @@
 package com.usp.buildconnect.config;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.spec.SecretKeySpec;
-
+import javax.crypto.SecretKey;
+//import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +20,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.usp.buildconnect.security.CustomAuthenticationProvider;
+import com.usp.buildconnect.security.JwtAutFilter;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 
 @Configuration
@@ -32,17 +35,29 @@ public class SecurityConfig {
 	@Autowired
 	private CustomAuthenticationProvider customAuthenticationProvider; //estratégia para busca de Usuário no SGBD
 	
+	@Value("${jwt.secret}")
+	private String secretString;
+	
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{ //exceto a rota 'auth/login', qualquer outra precisa de login
+	public SecretKey jwtSecretKey() {
+	    // Log para VERIFICAR se secretString está correta AQUI
+	    System.out.println("DEBUG - Secret String from properties: " + secretString);
+	    byte[] secretBytes = java.util.Base64.getUrlDecoder().decode(secretString);
+	    return Keys.hmacShaKeyFor(secretBytes);
+	}
+	
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http, JwtAutFilter jwtAutFilter) throws Exception{ //exceto a rota 'auth/login', qualquer outra precisa de login
 		return http
 		        .csrf(csrf -> csrf.disable())
 		        .authorizeHttpRequests(auth -> auth
 		            // Rota de login aberta
 		            .requestMatchers("/Auth/Login").permitAll()
-
 		            // CLIENTE
-		            .requestMatchers("/Avaliations/**").hasRole("CLIENT")
-		            .requestMatchers(HttpMethod.GET, "/Contracts/ByID").hasRole("CLIENT")
+		            //.requestMatchers("/Avaliations/**").hasRole("CLIENT")
+		            .requestMatchers(HttpMethod.POST, "/Avaliations").hasRole("CLIENT")
+		            .requestMatchers(HttpMethod.PUT, "/Avaliations/ByID").hasRole("CLIENT")
+		            .requestMatchers(HttpMethod.DELETE, "/Avaliations/ByID").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.GET, "/Contracts/ByClient").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.POST, "/Contracts").hasRole("CLIENT")
 		            .requestMatchers("/Interactions/**").hasRole("CLIENT")
@@ -56,9 +71,6 @@ public class SecurityConfig {
 		            .requestMatchers("/User/**").hasRole("CLIENT")  // CLIENT também acessa User
 
 		            // PROFESSIONAL
-		            .requestMatchers(HttpMethod.GET, "/Avaliations/ByID").hasRole("PROFESSIONAL")
-		            .requestMatchers(HttpMethod.GET, "/Avaliations/ByProfessional").hasRole("PROFESSIONAL")
-		            .requestMatchers(HttpMethod.GET, "/Contracts/ByID").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.GET, "/Contracts/ByProfessional").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.PUT, "/Contracts/Accept").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.PUT, "/Contracts/Cancel").hasRole("PROFESSIONAL")
@@ -75,9 +87,7 @@ public class SecurityConfig {
 		            // Qualquer outro endpoint precisa de autenticação
 		            .anyRequest().authenticated()
 		        )
-		        .oauth2ResourceServer(oauth2 -> oauth2
-		            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-		        )
+		        .addFilterBefore(jwtAutFilter, UsernamePasswordAuthenticationFilter.class)
 		        .build();
 	}
 	
@@ -89,13 +99,12 @@ public class SecurityConfig {
 	  }
 
 	 @Bean
-	    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+	 public JwtAuthenticationConverter jwtAuthenticationConverter() {
 	        return new JwtAuthenticationConverter() {{
 	            setJwtGrantedAuthoritiesConverter(jwt -> {
 	                List<GrantedAuthority> authorities = new ArrayList<>();
-	                String role = jwt.getClaimAsString("role");
-	                System.out.println(role);
-	                if (role != null) {
+	                List<String> roles = jwt.getClaimAsStringList("roles");
+	                for (String role: roles) {
 	                    authorities.add(new SimpleGrantedAuthority(role));
 	                }
 
@@ -105,9 +114,7 @@ public class SecurityConfig {
 	    }
 	 
 	 @Bean
-	 public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secretKey) {
-	     // Exemplo com chave simétrica (usada com jjwt, por exemplo)
-		 System.out.println(secretKey);
-	     return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256")).build();
-	  }
+	 public JwtDecoder jwtDecoder(SecretKey key) {
+	     return NimbusJwtDecoder.withSecretKey(key).build();
+	 }
 }

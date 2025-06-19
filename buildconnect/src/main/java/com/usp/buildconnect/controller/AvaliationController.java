@@ -61,7 +61,7 @@ public class AvaliationController {
 			@RequestParam("client_id") Long client_id, @RequestParam("professional_id") Long professional_id){
 		IdAvaliation id = new IdAvaliation();
 		id.setClient_id(client_id);
-		id.setClient_id(professional_id);
+		id.setProfessional_id(professional_id);
 		avaliationsService.updateAvaliation(id, dto);
 		return ResponseEntity.noContent().build();
 	}
@@ -71,7 +71,7 @@ public class AvaliationController {
 			@RequestParam("professional_id") Long professional_id){
 		IdAvaliation id = new IdAvaliation();
 		id.setClient_id(client_id);
-		id.setClient_id(client_id);
+		id.setProfessional_id(professional_id);
 		avaliationsService.deleteAvaliation(id);
 		return ResponseEntity.noContent().build();
 	}

@@ -39,11 +39,6 @@ public class ProfessionalController {
 		ProfessionalDTO dto = searchService.getProfessionalByID(Id);
 		return dto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
 	}
-	
-	@GetMapping
-	public ResponseEntity<?> getProfessionals(){
-		List<ProfessionalDTO> list = searchService.getProfessionals();
-		return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
-	}
+
 	
 }

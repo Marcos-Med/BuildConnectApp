@@ -80,8 +80,9 @@ public class ContractsService {
 		String message = "Contrato na localização " +
 				contract.getAddress() + " entre " + client.getUser().getName() + " e "+
 					professional.getUser().getName() + " emitido com sucesso!";
+		Contract result =contractRepository.save(contract);
 		notificationService.createNotification(message, contract);
-		return contractRepository.save(contract);
+		return result;
 	}
 	
 	public Contract updateContract(String status, Long id) {

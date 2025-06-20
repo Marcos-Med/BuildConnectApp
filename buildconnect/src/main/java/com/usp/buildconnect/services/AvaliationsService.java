@@ -69,7 +69,7 @@ public class AvaliationsService {
 				.orElseThrow(() -> new EntityNotFoundException("Avaliation Not Found"));
 		avaliation.setScore(dto.getScore());
 		avaliation.setComment(dto.getComment());
-		return avaliation;
+		return avaliationRepository.save(avaliation);
 	}
 	
 	public void deleteAvaliation(IdAvaliation id) {

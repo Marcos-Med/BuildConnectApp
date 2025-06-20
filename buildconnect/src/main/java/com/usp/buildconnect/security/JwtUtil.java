@@ -18,15 +18,13 @@ public class JwtUtil {
 	
 	@Autowired
 	private SecretKey secretKey;
-	
-	private static final String SECRET_KEY = "4Z^XrroxR@dWxqf$mTTKwW$!@#qGr4P";
 
     public String generateToken(String username, Collection<? extends GrantedAuthority> authorities) { //gera token JWT
     	List<String> roles = authorities.stream()
     		    .map(auth -> auth.getAuthority().startsWith("ROLE_") ? auth.getAuthority() : "ROLE_" + auth.getAuthority())
     		    .collect(Collectors.toList());
     	Map<String, Object> claims = new HashMap<>();
-    	claims.put("roles", roles);
+    	claims.put("authorities", roles);
         return Jwts.builder()
                 .header() // Inicia a construção do cabeçalho
                 .add("alg", "HS512") // Adiciona o algoritmo HS512 ao cabeçalho JWT

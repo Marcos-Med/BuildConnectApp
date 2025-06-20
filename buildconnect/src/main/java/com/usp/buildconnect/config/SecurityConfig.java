@@ -40,8 +40,6 @@ public class SecurityConfig {
 	
 	@Bean
 	public SecretKey jwtSecretKey() {
-	    // Log para VERIFICAR se secretString está correta AQUI
-	    System.out.println("DEBUG - Secret String from properties: " + secretString);
 	    byte[] secretBytes = java.util.Base64.getUrlDecoder().decode(secretString);
 	    return Keys.hmacShaKeyFor(secretBytes);
 	}
@@ -53,38 +51,25 @@ public class SecurityConfig {
 		        .authorizeHttpRequests(auth -> auth
 		            // Rota de login aberta
 		            .requestMatchers("/Auth/Login").permitAll()
-		            // CLIENTE
-		            //.requestMatchers("/Avaliations/**").hasRole("CLIENT")
+		            // CLIENT
 		            .requestMatchers(HttpMethod.POST, "/Avaliations").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.PUT, "/Avaliations/ByID").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.DELETE, "/Avaliations/ByID").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.GET, "/Contracts/ByClient").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.POST, "/Contracts").hasRole("CLIENT")
-		            .requestMatchers("/Interactions/**").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.POST, "/Interactions").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.PUT, "/Interactions/ByID").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.DELETE, "/Interactions/ByID").hasRole("CLIENT")
 		            .requestMatchers(HttpMethod.GET, "/Notifications/ByClient").hasRole("CLIENT")
-		            .requestMatchers(HttpMethod.GET, "/Notifications/ByID").hasRole("CLIENT")
-		            .requestMatchers(HttpMethod.DELETE, "/Notifications/ByID").hasRole("CLIENT")
-		            .requestMatchers(HttpMethod.GET, "/Posts/ByProfessional").hasRole("CLIENT")
-		            .requestMatchers(HttpMethod.GET, "/Posts/ByID").hasRole("CLIENT")
-		            .requestMatchers("/Professionals/**").hasRole("CLIENT")
-		            .requestMatchers("/Search/**").hasRole("CLIENT")
-		            .requestMatchers("/User/**").hasRole("CLIENT")  // CLIENT também acessa User
-
 		            // PROFESSIONAL
 		            .requestMatchers(HttpMethod.GET, "/Contracts/ByProfessional").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.PUT, "/Contracts/Accept").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.PUT, "/Contracts/Cancel").hasRole("PROFESSIONAL")
 		            .requestMatchers(HttpMethod.PUT, "/Contracts/Finish").hasRole("PROFESSIONAL")
-		            .requestMatchers(HttpMethod.GET, "/Interactions/**").hasRole("PROFESSIONAL")  // Apenas GETs
 		            .requestMatchers(HttpMethod.GET, "/Notifications/ByProfessional").hasRole("PROFESSIONAL")
-		            .requestMatchers(HttpMethod.GET, "/Notifications/ByID").hasRole("PROFESSIONAL")
-		            .requestMatchers(HttpMethod.DELETE, "/Notifications/ByID").hasRole("PROFESSIONAL")
-		            .requestMatchers("/Posts/**").hasRole("PROFESSIONAL")
-		            .requestMatchers("/Professionals/**").hasRole("PROFESSIONAL")
-		            .requestMatchers("/Search/**").hasRole("PROFESSIONAL")
-		            .requestMatchers("/User/**").hasRole("PROFESSIONAL") // PROFESSIONAL também acessa User
-
-		            // Qualquer outro endpoint precisa de autenticação
+		            .requestMatchers(HttpMethod.POST,"/Posts").hasRole("PROFESSIONAL")
+						.requestMatchers(HttpMethod.PUT, "/Posts/ByID").hasRole("PROFESSIONAL")
+						.requestMatchers(HttpMethod.DELETE, "/Posts/ByID").hasRole("PROFESSIONAL")
 		            .anyRequest().authenticated()
 		        )
 		        .addFilterBefore(jwtAutFilter, UsernamePasswordAuthenticationFilter.class)

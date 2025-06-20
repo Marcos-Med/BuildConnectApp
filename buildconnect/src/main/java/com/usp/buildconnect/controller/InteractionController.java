@@ -44,7 +44,7 @@ public class InteractionController {
 	
 	@GetMapping("/ByPost")
 	public ResponseEntity<?> getInteractionsByPost(@RequestParam("post_id") Long post_id){
-		List<InteractionDTO> list = interactionsService.getInteractionsByClient(post_id);
+		List<InteractionDTO> list = interactionsService.getInteractionsByPost(post_id);
 		return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
 	}
 	

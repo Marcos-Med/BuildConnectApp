@@ -86,7 +86,7 @@ public class ProfessionalsService {
 				WHERE LOWER(u.cidade) LIKE LOWER(CONCAT('%', :cityParam, '%')) 
 				""");
 		Query nativeQuery = entityManager.createNativeQuery(sql.toString());
-		nativeQuery.setParameter("regionParam", city);
+		nativeQuery.setParameter("cityParam", city);
 		return mapRawResultsToDTOs(nativeQuery.getResultList());
 	}
 	
@@ -109,7 +109,7 @@ public class ProfessionalsService {
 				LEFT JOIN Prestador_Servicos ps ON ps.fk_profissional_id = p.fk_usuario_id
 				LEFT JOIN Servico s ON s.id = ps.fk_servico_id
 				WHERE EXISTS(
-				 	SELECT 1 FROM Prestador_Serviços p_filter
+				 	SELECT 1 FROM Prestador_Servicos p_filter
 				 	JOIN Servico s_filter ON s_filter.id = p_filter.fk_servico_id
 				 	WHERE p.fk_usuario_id = p_filter.fk_profissional_id AND
 				 	LOWER(s.tipo) LIKE LOWER(CONCAT('%', :serviceParam, '%'))
@@ -198,7 +198,7 @@ public class ProfessionalsService {
         Map<Long, ProfessionalDTO> professionalMap = new HashMap<>();
 
         for (Object[] row : rawResults) {
-            Long id = (Long) row[0]; 
+            Long id = ((Number) row[0]).longValue();
             String name = (String) row[1]; 
             String cpf = (String) row[2];
             String service = (String) row[3];

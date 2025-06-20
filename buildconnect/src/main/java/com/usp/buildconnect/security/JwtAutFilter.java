@@ -55,20 +55,7 @@ public class JwtAutFilter extends OncePerRequestFilter {
                 }
             }
         }
-        //System.out.println("DEBUG - Autenticacao no JwtAutFilter ANTES do filterChain:");
-        //System.out.println("DEBUG - Principal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        //System.out.println("DEBUG - Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        
-        // Chamar o próximo filtro SEMPRE
+
         filterChain.doFilter(request, response);
-        
-     // Adicione este bloco também
-        //System.out.println("DEBUG - Autenticacao no JwtAutFilter APÓS o filterChain (se o fluxo retornar):");
-        //if (SecurityContextHolder.getContext().getAuthentication() != null) {
-        //    System.out.println("DEBUG - Principal (APÓS): " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        //    System.out.println("DEBUG - Authorities (APÓS): " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        //} else {
-        //    System.out.println("DEBUG - Authentication is NULL after filterChain!");
-       // }
     }
 }

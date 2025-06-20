@@ -109,7 +109,7 @@ public class PostsService {
 	private List<PostDTO> mapsRawResultsToDTOs(List<Object[]> rawResults){
 		Map<Long, PostDTO> postsMap = new HashMap<>();
 		for(Object[] result: rawResults) {
-			Long id = (Long) result[0];
+			Long id = ((Number) result[0]).longValue();
 			String title = (String) result[1];
 			String description = (String) result[2];
 			String url_image = (String) result[3];

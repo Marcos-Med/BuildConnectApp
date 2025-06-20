@@ -31,8 +31,8 @@ public class AuthController {
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             ); //verifica se user e password estão corretos
-
-            String token = jwtUtil.generateToken(auth.getName());
+            
+            String token = jwtUtil.generateToken(auth.getName(), auth.getAuthorities());
             return ResponseEntity.ok(new AuthResponse(token)); //emite o token de autorização
 
         } catch (AuthenticationException e) {
